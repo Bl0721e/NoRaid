@@ -8,7 +8,7 @@ using OpenMod.API.Plugins;
 
 // For more, visit https://openmod.github.io/openmod-docs/devdoc/guides/getting-started.html
 
-[assembly: PluginMetadata("Bl0721e.NoRaid", Author="Blockie", DisplayName = "Blockie.NoRaiding")]
+[assembly: PluginMetadata("Bl0721e.NoRaid", Author="Blockie", DisplayName = "Blockie.NoRaid")]
 namespace Bl0721e.NoRaid
 {
     public class NoRaid : OpenModUnturnedPlugin
@@ -16,6 +16,7 @@ namespace Bl0721e.NoRaid
         private readonly IConfiguration m_Configuration;
         private readonly IStringLocalizer m_StringLocalizer;
         private readonly ILogger<NoRaid> m_Logger;
+	public static bool isBlocked = false;
 
         public NoRaid(
             IConfiguration configuration,
