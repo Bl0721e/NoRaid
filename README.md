@@ -3,5 +3,5 @@
 Protects buildables from other players while still allowing the owner and zombies to damage them.
 
 ## TODO:
-add translation support  
-make abandoned bases destructable
+- add translation support
+- make abandoned bases destructable
