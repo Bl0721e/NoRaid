@@ -7,7 +7,7 @@ using OpenMod.API.Eventing;
 using OpenMod.Core.Eventing;
 using OpenMod.Unturned.Building.Events;
 using SDG.Unturned;
-using OpenMod.Unturned.Users;
+using Steamworks;
 using UnityEngine;
 
 using Color = System.Drawing.Color;
@@ -51,7 +51,7 @@ namespace Bl0721e.NoRaid.Events
 				bool hasAccess = await @event.Buildable.Ownership.HasAccessAsync(@event.Instigator);
 				Vector3 v3 = new UnityEngine.Vector3(position.X, position.Y, position.Z);
 				bool ignoreNav = false;
-				bool parentIsTrain = false;
+				bool parentIsOthersVehicle = false;
 				if (@event.Buildable.BarricadeDrop.model != null && @event.Buildable.BarricadeDrop.model.parent != null)
 				{
 					ignoreNav = @event.Buildable.BarricadeDrop.model.parent.CompareTag("Vehicle");
@@ -61,10 +61,12 @@ namespace Bl0721e.NoRaid.Events
 					ushort plant;
 					BarricadeManager.tryGetRegion(@event.Buildable.BarricadeDrop.model, out x, out y, out plant, out region);
 					InteractableVehicle vehicle = BarricadeManager.getVehicleFromPlant(plant);
-					parentIsTrain = vehicle.asset.engine.ToString() == "TRAIN";
+					if (vehicle.asset.engine.ToString() == "TRAIN" || @event.Instigator.SteamId.m_SteamID != vehicle.lockedOwner.m_SteamID || (@event.Instigator.Player.quests.groupID != CSteamID.Nil && @event.Instigator.Player.quests.groupID.m_SteamID == vehicle.lockedGroup.m_SteamID))
+					{
+						parentIsOthersVehicle = true;
+					}
 				}
-				}
-				if (!@event.Buildable.Ownership.HasOwner || hasAccess || (LevelNavigation.checkSafeFakeNav(v3) && !ignoreNav) || parentIsTrain)
+				if (!@event.Buildable.Ownership.HasOwner || hasAccess || (LevelNavigation.checkSafeFakeNav(v3) && !ignoreNav) || parentIsOthersVehicle)
 				{
 					var health = 0.0;
 					if (@event.Buildable.State.Health > 1.0)
