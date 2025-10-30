@@ -70,7 +70,7 @@ namespace Bl0721e.NoRaid.Events
 					ushort plant;
 					BarricadeManager.tryGetRegion(@event.Buildable.BarricadeDrop.model, out x, out y, out plant, out region);
 					InteractableVehicle vehicle = BarricadeManager.getVehicleFromPlant(plant);
-					if (vehicle.asset.engine.ToString() == "TRAIN" || @event.Instigator.SteamId.m_SteamID == vehicle.lockedOwner.m_SteamID || (@event.Instigator.Player.quests.groupID != CSteamID.Nil && @event.Instigator.Player.quests.groupID.m_SteamID == vehicle.lockedGroup.m_SteamID))
+					if (vehicle.asset.engine.ToString() == "TRAIN" || !vehicle.isLocked || @event.Instigator.SteamId.m_SteamID == vehicle.lockedOwner.m_SteamID || (@event.Instigator.Player.quests.groupID != CSteamID.Nil && @event.Instigator.Player.quests.groupID.m_SteamID == vehicle.lockedGroup.m_SteamID))
 					{
 						parentIsOthersVehicle = true;
 					}
