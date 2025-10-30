@@ -25,6 +25,9 @@ namespace Bl0721e.NoRaid.Events
 			string message = "";
 			Color color = Color.FromName("White");
 			List<EDamageOrigin> allowedOrigins = new List<EDamageOrigin> {
+				EDamageOrigin.Carepackage_Timeout,
+				EDamageOrigin.Charge_Self_Destruct,
+				EDamageOrigin.Zombie_Fire_Breath,
 				EDamageOrigin.Mega_Zombie_Boulder,
 				EDamageOrigin.Trap_Wear_And_Tear,
 				EDamageOrigin.Plant_Harvested,
@@ -41,6 +44,10 @@ namespace Bl0721e.NoRaid.Events
 				{
 					@event.IsCancelled = true;
 				}
+			}
+			else if (@event.DamageOrigin == EDamageOrigin.Vehicle_Bumper && @event.Instigator.CurrentVehicle!.Asset.VehicleType == "train")
+			{
+				return;
 			}
 			else
 			{

@@ -29,6 +29,9 @@ namespace Bl0721e.NoRaid.Events
 			string message = "";
 			Color color = Color.FromName("White");
 			List<EDamageOrigin> allowedOrigins = new List<EDamageOrigin> {
+				EDamageOrigin.Carepackage_Timeout,
+				EDamageOrigin.Charge_Self_Destruct,
+				EDamageOrigin.Zombie_Fire_Breath,
 				EDamageOrigin.Mega_Zombie_Boulder,
 				EDamageOrigin.Trap_Wear_And_Tear,
 				EDamageOrigin.Plant_Harvested,
@@ -46,17 +49,29 @@ namespace Bl0721e.NoRaid.Events
 					@event.IsCancelled = true;
 				}
 			}
+			else if (@event.DamageOrigin == EDamageOrigin.Vehicle_Bumper && @event.Instigator.CurrentVehicle!.Asset.VehicleType == "train")
+			{
+				return;
+			}
 			else
 			{
 				var position = @event.Buildable.Transform.Position;
 				bool hasAccess = await @event.Buildable.Ownership.HasAccessAsync(@event.Instigator);
-				bool ignoreNav = false;
 				Vector3 v3 = new UnityEngine.Vector3(position.X, position.Y, position.Z);
+				bool ignoreNav = false;
+				bool parentIsTrain = false;
 				if (@event.Buildable.BarricadeDrop.model != null && @event.Buildable.BarricadeDrop.model.parent != null)
 				{
 					ignoreNav = @event.Buildable.BarricadeDrop.model.parent.CompareTag("Vehicle");
+					BarricadeRegion region;
+					byte x;
+					byte y;
+					ushort plant;
+					BarricadeManager.tryGetRegion(@event.Buildable.BarricadeDrop.model, out x, out y, out plant, out region);
+					InteractableVehicle vehicle = BarricadeManager.getVehicleFromPlant(plant);
+					parentIsTrain = vehicle.asset.engine.ToString() == "TRAIN";
 				}
-				if (!@event.Buildable.Ownership.HasOwner || hasAccess || (LevelNavigation.checkSafeFakeNav(v3) && !ignoreNav))
+				if (!@event.Buildable.Ownership.HasOwner || hasAccess || (LevelNavigation.checkSafeFakeNav(v3) && !ignoreNav) || parentIsTrain)
 				{
 					var health = 0.0;
 					if (@event.Buildable.State.Health > @event.DamageAmount)
