@@ -40,7 +40,7 @@ namespace Bl0721e.NoRaid
         protected override async UniTask OnUnloadAsync()
         {
             // await UniTask.SwitchToMainThread(); uncomment if you have to access Unturned or UnityEngine APIs
-            m_Logger.LogInformation(m_StringLocalizer["plugin_events:plugin_stop"]);
+            m_Logger.LogInformation(Stopped"]);
         }
     }
 

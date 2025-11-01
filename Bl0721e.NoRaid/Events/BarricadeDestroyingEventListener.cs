@@ -1,10 +1,13 @@
 using System;
 using System.Drawing;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using System.Collections.Generic;
 using OpenMod.API.Eventing;
+using OpenMod.API.Users;
 using OpenMod.Core.Eventing;
+using OpenMod.Core.Users;
 using OpenMod.Unturned.Building.Events;
 using SDG.Unturned;
 using Steamworks;
@@ -16,6 +19,15 @@ namespace Bl0721e.NoRaid.Events
 {
 	public class BarricadeDestroyingEventHandler : IEventListener<UnturnedBarricadeDestroyingEvent>
 	{
+		private readonly IUserDataStore m_UserDataStore;
+		private readonly IConfiguration m_Configuration;
+		private readonly IStringLocalizer m_StringLocalizer;
+		public BarricadeDestroyingEventHandler(IUserDataStore userDataStore, IConfiguration configuration, IStringLocalizer stringLocalizer)
+		{
+			m_UserDataStore = userDataStore;
+			m_Configuration = configuration;
+			m_StringLocalizer = stringLocalizer;
+		}
 		public async Task HandleEventAsync(object? sender, UnturnedBarricadeDestroyingEvent @event)
 		{
 			string message = "";
@@ -52,6 +64,8 @@ namespace Bl0721e.NoRaid.Events
 				Vector3 v3 = new UnityEngine.Vector3(position.X, position.Y, position.Z);
 				bool ignoreNav = false;
 				bool parentIsOthersVehicle = false;
+				string fallbackLocale = m_Configuration.GetSection("locale:fallbackLocale").Get<string>()!;
+				string locale = await m_UserDataStore.GetUserDataAsync<string>(@event.Instigator.SteamId.m_SteamID.ToString(), KnownActorTypes.Player, "localePreference") ?? fallbackLocale;
 				if (@event.Buildable.BarricadeDrop.model != null && @event.Buildable.BarricadeDrop.model.parent != null)
 				{
 					ignoreNav = @event.Buildable.BarricadeDrop.model.parent.CompareTag("Vehicle");
@@ -74,12 +88,12 @@ namespace Bl0721e.NoRaid.Events
 						@event.DamageAmount = Convert.ToUInt16(Math.Ceiling(@event.Buildable.State.Health) - 1);
 						health = 1.0;
 					}
-					message = $"此物品当前生命值: {health}";
+					message = m_StringLocalizer[$"{locale}:currentHealth", new { health = health }];
 				}
 				else
 				{
 					@event.IsCancelled = true;
-					message = "你不能攻击其他玩家的建筑物";
+					message = m_StringLocalizer[$"{locale}:damagingNotAllowed"];
 					color = Color.FromName("Crimson");
 				}
 			}
