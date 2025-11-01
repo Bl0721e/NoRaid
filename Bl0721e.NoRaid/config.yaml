@@ -1,1 +1,2 @@
-fallbackLocale: "en"
+locale:
+  fallbackLocale: "en"
